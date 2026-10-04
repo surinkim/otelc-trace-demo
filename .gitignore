@@ -1,0 +1,4 @@
+bin/
+.otelc-build/
+traces.jsonl
+scratch-*

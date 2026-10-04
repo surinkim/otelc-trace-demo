@@ -1,0 +1,34 @@
+services:
+  # Collector + Tempo + Grafana (+ Loki, Mimir)가 들어 있는 체험용 이미지
+  lgtm:
+    image: grafana/otel-lgtm:latest
+    ports:
+      - "3000:3000"   # Grafana (admin / admin)
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]  # 로컬에서 바이너리를 직접 돌릴 때(make console)용
+
+  # otelc go build로 빌드한 서버 → :8080
+  app-otel:
+    build: { context: ., args: { BUILD: otel } }
+    ports: ["8080:8080"]
+    environment:
+      REDIS_ADDR: redis:6379
+      GIN_MODE: release
+      OTEL_SERVICE_NAME: otelc-demo
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://lgtm:4318
+    depends_on: [lgtm, redis]
+
+  # 같은 코드를 go build로 빌드한 서버 → :8081 (비교용, 트레이스 없음)
+  app-plain:
+    build: { context: ., args: { BUILD: plain } }
+    ports: ["8081:8080"]
+    environment:
+      REDIS_ADDR: redis:6379
+      GIN_MODE: release
+      OTEL_SERVICE_NAME: plain-demo
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://lgtm:4318
+    depends_on: [redis]
