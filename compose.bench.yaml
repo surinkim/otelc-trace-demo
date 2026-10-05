@@ -1,0 +1,9 @@
+# ./bench.sh 측정용: 두 앱에 같은 CPU·메모리 한도를 준다.
+# docker compose -f compose.yaml -f compose.bench.yaml up -d
+services:
+  app-otel:
+    cpus: "1.0"
+    mem_limit: 256m
+  app-plain:
+    cpus: "1.0"
+    mem_limit: 256m

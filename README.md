@@ -60,6 +60,27 @@ jq -r 'select(.Name) | "\(.SpanContext.TraceID[0:8])  \(.Name)"' traces.jsonl
 
 같은 trace ID를 가진 줄이 한 요청이다.
 
+## 3. 실행 중 부하 비교
+
+두 앱에 같은 CPU·메모리 한도(CPU 1개, 256MB)를 주고 `ab`로 같은 부하를 보낸다.
+
+```bash
+docker compose -f compose.yaml -f compose.bench.yaml up -d --build
+./bench.sh 20000 10 7 /users/1    # 요청 수, 동시 접속, 반복 횟수, 경로
+```
+
+M1 맥 Docker Desktop, 중앙값 (`GET /users/1`, Redis 캐시 hit, 샘플링 없음)
+
+| | `go build` | `otelc go build` |
+|---|---|---|
+| 처리량 | 12,694 req/s | 10,191 req/s |
+| 평균 응답 시간 | 0.79ms | 0.98ms |
+| p99 응답 시간 | 2ms | 4ms |
+| 요청당 CPU 시간 | 45µs | 78µs |
+| 메모리 | 9MB | 17MB |
+
+`GET /report`(약 0.7초)는 736ms와 732ms로 차이가 없었다.
+
 ## 확인한 것 (macOS, M1, Go 1.26.0, otelc v1.1.0)
 
 - `go.mod`·소스는 그대로. 계측 코드는 빌드 캐시(`.otelc-build/`) 안에서만 붙는다.
