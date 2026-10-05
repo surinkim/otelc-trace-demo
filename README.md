@@ -8,7 +8,7 @@ go build -o app .           # 평범한 서버
 otelc go build -o app .     # 같은 코드, 트레이스를 보내는 서버
 ```
 
-설명과 결과는 블로그 글에 정리했다. (링크 추가 예정)
+설명과 결과는 블로그 글 [otelc를 사용한 Go 트레이싱](https://corecode.pe.kr/normal/2026/10/04/go-otelc-zero-code-tracing/)에 정리했다.
 
 ## 예제 서비스
 
